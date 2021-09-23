@@ -190,7 +190,7 @@ FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2,
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-  while(WR_DMATransferDone)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -204,7 +204,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uin
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
 
-  while(WR_DMATransferDone)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -455,7 +455,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = NULL, uint32_t const length = 0)
 {
-    while(WR_DMATransferDone)
+    while(WR_DMATransferDone == false)
     {
       //Wait for any DMA transfers to complete
     }
@@ -528,7 +528,7 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length)
 {
-    while(WR_DMATransferDone)
+    while(WR_DMATransferDone == false)
     {
       //Wait for any DMA transfers to complete
     }
@@ -590,7 +590,7 @@ DMAChannel ILI948x_t4_mm::flexDma;
 
 FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length) 
 {
-  while(WR_DMATransferDone)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -691,13 +691,12 @@ FASTRUN void ILI948x_t4_mm::dmaISR()
 
 FASTRUN void ILI948x_t4_mm::flexDma_Callback()
 {
-  Serial.println("DMA callback triggred");
+    Serial.println("DMA callback triggred");
     
     /* the interrupt is called when the final DMA transfer completes writing to the shifter buffers, which would generally happen while
     data is still in the process of being shifted out from the second-to-last major iteration. In this state, all the status flags are cleared.
     when the second-to-last major iteration is fully shifted out, the final data is transfered from the buffers into the shifters which sets all the status flags.
     if you have only one major iteration, the status flags will be immediately set before the interrupt is called, so the while loop will be skipped. */
-    
     while(0 == (p->SHIFTSTAT & (1U << (SHIFTNUM-1))))
     {
     }
@@ -712,7 +711,7 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
     while(0 == (p->TIMSTAT & (1U << 0U)))
     {
     }
-    
+    Serial.printf("MulBeatCountRemain before %d \n", MulBeatCountRemain);
     if(MulBeatCountRemain){
       uint16_t buf;
       FlexIO_Config_SnglBeat();
@@ -732,6 +731,7 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
               
           }
     }
+    Serial.printf("MulBeatCountRemain after %d \n", MulBeatCountRemain);
 
     microSecondDelay();
     CSHigh();
