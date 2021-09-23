@@ -1,21 +1,5 @@
 #include "ILI948x_t4_mm.h"
 
-PROGMEM static const uint8_t initCommands[] = 
-{
-  ILI9488_PWCTR1,     2, 0x19, 0x1A,              // Power Control 1
-  ILI9488_PWCTR2,     2, 0x45, 0X00,              // Power Control 2
-  ILI9488_PWCTR3,     1, 0x33,                    // Power Control 3 (For Normal Mode)
-	ILI9488_VMCTR1,     3, 0x00, 0x12, 0x80,        // VCOM control
-	ILI9488_INVCTR,     1, 0x02,                    // Display Inversion Control
-	ILI9488_DFUNCTR,    3, 0x00, 0x02, 0x3B,	      // Display Function Control  RGB/MCU Interface Control
-	ILI9488_ETMOD,      1, 0x07,                    // Entry Mode Set
-  // Gamma Setting	   
-  ILI9488_PGAMCTRL,  15, 0x00, 0x03, 0x09, 0x08, 0x16, 0x0A, 0x3F, 0x78, 0x4C, 0x09, 0x0A, 0x08, 0x16, 0x1A, 0x0F,
-	ILI9488_NGAMCTRL,  15, 0x00, 0x16, 0x19, 0x03, 0x0F, 0x05, 0x32, 0x45, 0x46, 0x04, 0x0E, 0x0D, 0x35, 0x37, 0x0F,
-  // Other commands  
- 	ILI9488_MADCTL,     1, 0x48,                    // Memory Access Control : 0x48 is equivalent to _rotation = 0
-	0
-};
 
 FLASHMEM ILI948x_t4_mm::ILI9488_t4p(int8_t dc, int8_t cs, int8_t rst) 
 {
@@ -30,32 +14,19 @@ FLASHMEM ILI948x_t4_mm::ILI9488_t4p(int8_t dc, int8_t cs, int8_t rst)
 
 FLASHMEM void ILI948x_t4_mm::begin() 
 {
-  
-  _dcPinMask = digitalPinToBitMask(_dc);
-  _dcPortSet = portSetRegister(_dc);
-  _dcPortClr = portClearRegister(_dc);
-
-  _csPinMask = digitalPinToBitMask(_cs);
-  _csPortSet = portSetRegister(_cs);
-  _csPortClr = portClearRegister(_cs);
-
-
   pinMode(_cs, OUTPUT); // CS
   pinMode(_dc, OUTPUT); // DC
   pinMode(_rst, OUTPUT); // RST
   *(portControlRegister(_cs)) = 0xFF;
   *(portControlRegister(_dc)) = 0xFF;
   *(portControlRegister(_rst)) = 0xFF;
-
-  
-
   digitalWriteFast(_rst, HIGH);
   digitalWriteFast(_cs, HIGH);
   digitalWriteFast(_dc, HIGH);
 
   FlexIO_Init();
 
-  displayInit(initCommands);
+  displayInit();
   setBitDepth(_bitDepth);
 
   setTearingEffect(_bTearingOn);
@@ -222,10 +193,30 @@ FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2,
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-
+  while(WR_DMATransferDone)
+  {
+    //Wait for any DMA transfers to complete
+  }
+  uint32_t area = (x2-x1)*(y2-y1);
+  if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
+  setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+     _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
+  }
+  SglBeatWR_nPrm_16(ILI9488_RAMWR, pcolors, area);
 }
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+
+  while(WR_DMATransferDone)
+  {
+    //Wait for any DMA transfers to complete
+  }
+  uint32_t area = ((x2-x1)*(y2-y1))*2;
+  if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
+  setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+     _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
+  }
+  MulBeatWR_nPrm_DMA(ILI9488_RAMWR, pcolors, area);
 
 }
 
@@ -468,8 +459,10 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = 0, uint32_t const length = 0)
 {
     while(WR_DMATransferDone)
-      {
-      }
+    {
+      //Wait for any DMA transfers to complete
+    }
+
     FlexIO_Config_SnglBeat();
      uint32_t i;
     /* Assert CS, RS pins */
@@ -537,9 +530,10 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 }
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length)
-{
+{}
     while(WR_DMATransferDone)
     {
+      //Wait for any DMA transfers to complete
     }
     FlexIO_Config_SnglBeat();
     uint16_t buf;
@@ -591,13 +585,13 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t
 
 FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length); 
 {
+    while(WR_DMATransferDone)
+    {
+      //Wait for any DMA transfers to complete
+    }
     uint32_t BeatsPerMinLoop = SHIFTNUM * sizeof(uint32_t) / sizeof(uint8_t);      // Number of shifters * number of 8 bit values per shifter
     uint32_t majorLoopCount, minorLoopBytes;
     uint32_t destinationModulo = 31-(__builtin_clz(SHIFTNUM*sizeof(uint32_t))); // defines address range for circular DMA destination buffer 
-    while(WR_DMATransferDone)
-    {
-
-    }
 
     FlexIO_Config_SnglBeat();
     CSLow();
