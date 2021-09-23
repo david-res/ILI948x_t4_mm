@@ -1,20 +1,16 @@
 #ifndef _ILI948x_t4_mm_H_
 #define _ILI948x_t4_mm_H_
 
-
-
 #include <Arduino.h>
 #include "FlexIO_t4.h"
 #include "DMAChannel.h"
 
-FlexIOHandler *pFlex;
-IMXRT_FLEXIO_t *p;
-const FlexIOHandler::FLEXIO_Hardware_t *hw;
+
 #define CLOCKDIV 10
 
 #define SHIFTNUM 4 // number of shifters used (must be 1, 2, 4, or 8)
 #define SHIFTER_DMA_REQUEST 3 // only 0, 1, 2, 3 expected to work
-DMAChannel flexDma;
+
 
 #define DATABUFBYTES (480*320)/4
 
@@ -95,9 +91,9 @@ DMAChannel flexDma;
 #define MADCTL_ARRAY {MADCTL_MX | MADCTL_BGR, MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_BGR, MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_MV | MADCTL_BGR}
 
 #ifdef __cplusplus
-class ILI9488_t4p {
+class ILI948x_t4_mm {
   public:
-    ILI9488_t4p(int8_t dc, int8_t cs = -1, int8_t rst = -1);
+    ILI948x_t4_mm(int8_t dc, int8_t cs = -1, int8_t rst = -1);
     void begin();
     uint8_t setBitDepth(uint8_t bitDepth);
     uint8_t getBitDepth();
@@ -116,14 +112,24 @@ class ILI9488_t4p {
     void displayInfo();
     void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
-    void pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
-    void pushPixels16bitDMA(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
+    void pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+    void pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     
     //void pushPixels16bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
     //void pushPixels24bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
+    
 
+    
 	
   private:
+
+  FlexIOHandler *pFlex;
+  IMXRT_FLEXIO_t *p;
+  const FlexIOHandler::FLEXIO_Hardware_t *hw;
+  static DMAChannel flexDma;
+   
+    
+
     uint8_t _bitDepth = 16;
     uint8_t _rotation = 0;
     const uint8_t MADCTL[5] = MADCTL_ARRAY;
@@ -134,7 +140,7 @@ class ILI9488_t4p {
     uint16_t _tearingScanLine = 0;
 
     int16_t _width, _height;
-    int8_t  _dc, _cs, _rst,;
+    int8_t  _dc, _cs, _rst;
 
     uint8_t _dummy;
     uint8_t _curMADCTL;
@@ -146,7 +152,7 @@ class ILI9488_t4p {
     uint8_t *MulBeatDataRemain;
     uint32_t TotalSize; 
 
-    void displayInit(const uint8_t *addr);
+    void displayInit();
     void CSLow();
     void CSHigh();
     void DCLow();
@@ -156,19 +162,19 @@ class ILI9488_t4p {
     void FlexIO_Config_SnglBeat();
     void FlexIO_Config_MultiBeat();
 
-    void dmaISR();
-    void flexDma_Callback();
+    
 
-    void SglBeatWR_nPrm_8(uint32_t const cmd, uint8_t const *value = 0, uint32_t const length = 0);
+    void SglBeatWR_nPrm_8(uint32_t const cmd, uint8_t const *value , uint32_t const length);
     void SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length);
     void MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length);
     
     void microSecondDelay();
 
+    static void dmaISR();
+    void flexDma_Callback();
     
+    static ILI948x_t4_mm *dmaCallback;
     
 };
-
-#endif //ILI9488_BUSWIDTH
 #endif //__cplusplus
 #endif //_IILI948x_t4_mm_H_

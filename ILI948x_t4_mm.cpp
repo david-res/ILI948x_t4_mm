@@ -1,15 +1,14 @@
 #include "ILI948x_t4_mm.h"
 
-
-FLASHMEM ILI948x_t4_mm::ILI9488_t4p(int8_t dc, int8_t cs, int8_t rst) 
+FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst) 
 {
-  #if defined(ARDUINO_TEENSY_MICROMOD)
+  //#if defined(ARDUINO_TEENSY_MICROMOD)
   _dc = dc;
   _cs = cs;
   _rst = rst;
-  #else
-  #error "This library only supports the Teensy Micromod!"
-  #endif
+  //#else
+  //#error This library only supports the Teensy Micromod!
+  //#endif
 }
 
 FLASHMEM void ILI948x_t4_mm::begin() 
@@ -115,7 +114,7 @@ FLASHMEM void ILI948x_t4_mm::setTearingEffect(bool tearingOn)
   if (_bTearingOn == true) {
     SglBeatWR_nPrm_8(ILI9488_TEON, &mode, 1);        //Tearing effect line on, mode 0 (V-Blanking)
   } else {
-    SglBeatWR_nPrm_8(ILI9488_TEOFF);
+    SglBeatWR_nPrm_8(ILI9488_TEOFF,0,0);
   }
   CSHigh();
 
@@ -160,33 +159,31 @@ FLASHMEM void ILI948x_t4_mm::setRotation(uint8_t r)
 
 FLASHMEM void ILI948x_t4_mm::invertDisplay(bool invert) 
 {
-  SglBeatWR_nPrm_8(invert ? ILI9488_INVON : ILI9488_INVOFF);
+  SglBeatWR_nPrm_8(invert ? ILI9488_INVON : ILI9488_INVOFF,0,0);
 }
 
 
 
 FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) 
 {
-    uint8_t Command;
-    uint8_t CommandValue[4];
+  uint8_t Command;
+  uint8_t CommandValue[4];
 
-    Command = 0x2A;
-    CommandValue[0U] = x1 >> 8U;
-    CommandValue[1U] = x1 & 0xFF;
-    CommandValue[2U] = x2 >> 8U;
-    CommandValue[3U] = x2 & 0xFF;
-    SglBeatWR_nPrm_8(Command, CommandValue, 4U);
+  Command = 0x2A;
+  CommandValue[0U] = x1 >> 8U;
+  CommandValue[1U] = x1 & 0xFF;
+  CommandValue[2U] = x2 >> 8U;
+  CommandValue[3U] = x2 & 0xFF;
+  SglBeatWR_nPrm_8(Command, CommandValue, 4U);
 
-    Command = 0x2B;
-    CommandValue[0U] = y1 >> 8U;
-    CommandValue[1U] = y1 & 0xFF;
-    CommandValue[2U] = y2 >> 8U;
-    CommandValue[3U] = y2 & 0xFF;
-    SglBeatWR_nPrm_8(Command, CommandValue, 4U);
-  
-}
+  Command = 0x2B;
+  CommandValue[0U] = y1 >> 8U;
+  CommandValue[1U] = y1 & 0xFF;
+  CommandValue[2U] = y2 >> 8U;
+  CommandValue[3U] = y2 & 0xFF;
+  SglBeatWR_nPrm_8(Command, CommandValue, 4U);
 
-  sendCommand(ILI9488_RAMWR); //Set ILI9488 to expect RAM data for pixels, resets column and page regs
+  //SglBeatWR_nPrm_8(ILI9488_RAMWR); //Set ILI9488 to expect RAM data for pixels, resets column and page regs
 
   CSHigh();
 }
@@ -199,13 +196,13 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uin
   }
   uint32_t area = (x2-x1)*(y2-y1);
   if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
-  setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  setAddrWindow( x1, y1, x2, y2);
      _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
   }
   SglBeatWR_nPrm_16(ILI9488_RAMWR, pcolors, area);
 }
 
-FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
 
   while(WR_DMATransferDone)
   {
@@ -213,7 +210,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(uint16_t * pcolors, uint16_t x1, 
   }
   uint32_t area = ((x2-x1)*(y2-y1))*2;
   if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
-  setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  setAddrWindow(x1, y1, x2, y2);
      _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
   }
   MulBeatWR_nPrm_DMA(ILI9488_RAMWR, pcolors, area);
@@ -227,7 +224,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(uint16_t * pcolors, uint16_t x1, 
 ///////////////////
 //Private functions
 ///////////////////
-FLASHMEM void ILI948x_t4_mm::displayInit(const uint8_t *addr) 
+FLASHMEM void ILI948x_t4_mm::displayInit() 
 {
   #include "ILI948x_t4_mm_defines.h"
 }
@@ -456,7 +453,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
    p->SHIFTSDEN |= 1U << (SHIFTER_DMA_REQUEST); // enable DMA trigger when shifter status flag is set on shifter SHIFTER_DMA_REQUEST
 }
 
-FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = 0, uint32_t const length = 0)
+FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = NULL, uint32_t const length = 0)
 {
     while(WR_DMATransferDone)
     {
@@ -530,7 +527,7 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 }
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length)
-{}
+{
     while(WR_DMATransferDone)
     {
       //Wait for any DMA transfers to complete
@@ -583,12 +580,20 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t
     CSHigh();
 }
 
-FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length); 
+
+bool WR_DMATransferDone = false;
+uint32_t MulBeatCountRemain;
+uint8_t *MulBeatDataRemain;
+uint32_t TotalSize; 
+ILI948x_t4_mm * ILI948x_t4_mm::dmaCallback = nullptr;
+DMAChannel ILI948x_t4_mm::flexDma;
+
+FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length) 
 {
-    while(WR_DMATransferDone)
-    {
-      //Wait for any DMA transfers to complete
-    }
+  while(WR_DMATransferDone)
+  {
+    //Wait for any DMA transfers to complete
+  }
     uint32_t BeatsPerMinLoop = SHIFTNUM * sizeof(uint32_t) / sizeof(uint8_t);      // Number of shifters * number of 8 bit values per shifter
     uint32_t majorLoopCount, minorLoopBytes;
     uint32_t destinationModulo = 31-(__builtin_clz(SHIFTNUM*sizeof(uint32_t))); // defines address range for circular DMA destination buffer 
@@ -613,7 +618,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     //memcpy(databuf, pcolors, len); 
     //arm_dcache_flush((void*)databuf, sizeof(databuf)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
     
-    FLEXIO_8080_ConfigMulBeatWR();
+    FlexIO_Config_MultiBeat();
     
     MulBeatCountRemain = length % BeatsPerMinLoop;
     MulBeatDataRemain = (uint8_t*) value + (length - MulBeatCountRemain); // pointer to the next unused byte (overflow if MulBeatCountRemain = 0)
@@ -669,19 +674,22 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
 
     /* Start data transfer by using DMA */
     WR_DMATransferDone = false;
-    flexDma.attachInterrupt( dmaISR );
+    flexDma.attachInterrupt(dmaISR);
     flexDma.enable();
     Serial.println("Starting transfer");
+    dmaCallback = this;
 }
+//
 
 FASTRUN void ILI948x_t4_mm::dmaISR()
 {
   flexDma.clearInterrupt();
   asm volatile ("dsb"); // prevent interrupt from re-entering
-  flexDma_Callback();
+  dmaCallback->flexDma_Callback();
 }
 
-FASTRUN static void ILI948x_t4_mm::flexDma_Callback()
+
+FASTRUN void ILI948x_t4_mm::flexDma_Callback()
 {
   Serial.println("DMA callback triggred");
     
@@ -726,7 +734,7 @@ FASTRUN static void ILI948x_t4_mm::flexDma_Callback()
     }
 
     microSecondDelay();
-    digitalWriteFast(CSpin,HIGH);
+    CSHigh();
     /* the for loop is probably not sufficient to complete the transfer. Shifting out all 32 bytes takes (32 beats)/(6 MHz) = 5.333 microseconds which is over 3000 CPU cycles.
     If you really need to wait in this callback until all the data has been shifted out, the while loop is probably the correct solution and I don't think it risks an infinite loop.
     however, it seems like a waste of time to wait here, since the process otherwise completes in the background and the shifter buffers are ready to receive new data while the transfer completes.
