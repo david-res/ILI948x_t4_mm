@@ -190,7 +190,7 @@ FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2,
   CSHigh();
 }
 
-FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+FASTRUN void ILI948x_t4_mm::pushPixels16bit(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
   while(WR_DMATransferDone == false)
   {
@@ -205,19 +205,16 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bit(uint16_t * pcolors, uint16_t x1, uin
 }
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-
-  
-  uint32_t area = ((x2-x1)*(y2-y1))*2;
+  while(WR_DMATransferDone == false)
+  {
+    //Wait for any DMA transfers to complete
+  }
+  uint32_t area = ((x2-x1)*(y2-y1)*2);
   if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
   setAddrWindow(x1, y1, x2, y2);
      _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
   }
   MulBeatWR_nPrm_DMA(ILI9488_RAMWR, pcolors, area);
-  while(WR_DMATransferDone == false)
-  {
-    //Wait for any DMA transfers to complete
-  }
-
 }
 
 
@@ -330,6 +327,14 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_SnglBeat()
       | FLEXIO_SHIFTCTL_PINSEL(4)                                              /* Shifter's pin start index */
       | FLEXIO_SHIFTCTL_PINPOL*(0)                                             /* Shifter's pin active high */
       | FLEXIO_SHIFTCTL_SMOD(2);                                               /* Shifter mode as transmit */
+
+
+    for(uint i=1; i<=SHIFTNUM-1; i++)
+          {
+            p->SHIFTCFG[i] = 0;
+            p->SHIFTCTL[i] =0;
+          }
+
 
     /* Configure the timer for shift clock */
     p->TIMCMP[0] = 
@@ -458,10 +463,10 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = NULL, uint32_t const length = 0)
 {
-    while(WR_DMATransferDone == false)
-    {
-      //Wait for any DMA transfers to complete
-    }
+  while(WR_DMATransferDone == false)
+  {
+    //Wait for any DMA transfers to complete
+  }
 
     FlexIO_Config_SnglBeat();
      uint32_t i;
@@ -531,10 +536,10 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length)
 {
-    while(WR_DMATransferDone == false)
-    {
-      //Wait for any DMA transfers to complete
-    }
+ while(WR_DMATransferDone == false)
+  {
+    //Wait for any DMA transfers to complete
+  }
     FlexIO_Config_SnglBeat();
     uint16_t buf;
     /* Assert CS, RS pins */
@@ -593,9 +598,9 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t
 }
 
 
-bool WR_DMATransferDone = false;
+bool WR_DMATransferDone = true;
 uint32_t MulBeatCountRemain;
-uint8_t *MulBeatDataRemain;
+//uint16_t *MulBeatDataRemain;
 uint32_t TotalSize; 
 ILI948x_t4_mm * ILI948x_t4_mm::dmaCallback = nullptr;
 DMAChannel ILI948x_t4_mm::flexDma;
@@ -627,8 +632,9 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     DCHigh();
     microSecondDelay();
 
-
+/*
   if (length < 16){
+    Serial.println ("In DMA but to Short to multibeat");
     const uint16_t * newValue = (uint16_t*)value;
     uint16_t buf;
     for(uint32_t i=0; i<length; i++)
@@ -646,7 +652,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
           p->SHIFTBUF[0] = buf & 0xFF;
           
       }        
-      /*Wait for transfer to be completed */
+      //Wait for transfer to be completed 
       while(0 == (p->TIMSTAT & (1U << 0)))
       {
       }
@@ -655,16 +661,16 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     CSHigh();
 
   }
-   
+  */ 
 
-  else{
+ // else{
     //memcpy(databuf, pcolors, len); 
     //arm_dcache_flush((void*)databuf, sizeof(databuf)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
     
     FlexIO_Config_MultiBeat();
     
     MulBeatCountRemain = length % BeatsPerMinLoop;
-    MulBeatDataRemain = (uint8_t*) value + (length - MulBeatCountRemain); // pointer to the next unused byte (overflow if MulBeatCountRemain = 0)
+    MulBeatDataRemain = (uint16_t*)value + ((length - MulBeatCountRemain)/2); // pointer to the next unused byte (overflow if MulBeatCountRemain = 0)
     TotalSize = length - MulBeatCountRemain;               /* in bytes */
     minorLoopBytes = SHIFTNUM * sizeof(uint32_t);
     majorLoopCount = TotalSize/minorLoopBytes;
@@ -721,7 +727,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     flexDma.enable();
     Serial.println("Starting transfer");
     dmaCallback = this;
-   }
+ //  }
 }
 //
 
@@ -758,13 +764,16 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
     
     if(MulBeatCountRemain)
     {
-      Serial.printf("MulBeatCountRemain in DMA callback: %d, MulBeatDataRemain %x \n", MulBeatCountRemain,MulBeatDataRemain);
+      //Serial.printf("MulBeatCountRemain in DMA callback: %d, MulBeatDataRemain %x \n", MulBeatCountRemain,MulBeatDataRemain);
       uint16_t value;
         /* Configure FlexIO with 1-beat write configuration */
         FlexIO_Config_SnglBeat();
+        
+
+        Serial.printf("Starting single beat completion: %d", MulBeatCountRemain);
 
         /* Use polling method for data transfer */
-        for(uint32_t i=0; i<MulBeatCountRemain-1U; i++)
+        for(uint32_t i=0; i<(MulBeatCountRemain/2); i++)
         {
           value = *MulBeatDataRemain++;
             while(0 == (p->SHIFTSTAT & (1U << 0)))
@@ -777,8 +786,10 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
             }
             p->SHIFTBUF[0] = value & 0xFF;
         }
+        p->TIMSTAT |= (1U << 0);
+        /*
         value = *MulBeatDataRemain++;
-        /* Write the last byte */
+        //Write the last byte 
         
         while(0 == (p->SHIFTSTAT & (1U << 0)))
             {
@@ -791,10 +802,12 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
         p->TIMSTAT |= (1U << 0);
 
         p->SHIFTBUF[0] = value & 0xFF;
+        */
         /*Wait for transfer to be completed */
         while(0 == (p->TIMSTAT |= (1U << 0)))
         {
         }
+        Serial.println("Finished single beat completion");
     }
 
     microSecondDelay();

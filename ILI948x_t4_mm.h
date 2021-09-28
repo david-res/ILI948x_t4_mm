@@ -6,7 +6,7 @@
 #include "DMAChannel.h"
 
 
-#define CLOCKDIV 10
+#define CLOCKDIV 40
 
 #define SHIFTNUM 4 // number of shifters used (must be 1, 2, 4, or 8)
 #define SHIFTER_DMA_REQUEST 3 // only 0, 1, 2, 3 expected to work
@@ -112,15 +112,13 @@ class ILI948x_t4_mm {
     void displayInfo();
     void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
-    void pushPixels16bit(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+    void pushPixels16bit(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     void pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     
     //void pushPixels16bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
     //void pushPixels24bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
+    void DMAerror();
     
-
-    
-	
   private:
 
   FlexIOHandler *pFlex;
@@ -149,7 +147,7 @@ class ILI948x_t4_mm {
 
     bool WR_DMATransferDone = true;
     uint32_t MulBeatCountRemain;
-    uint8_t *MulBeatDataRemain;
+    uint16_t *MulBeatDataRemain;
     uint32_t TotalSize; 
 
     void displayInit();
@@ -161,8 +159,6 @@ class ILI948x_t4_mm {
     void FlexIO_Init();
     void FlexIO_Config_SnglBeat();
     void FlexIO_Config_MultiBeat();
-
-    
 
     void SglBeatWR_nPrm_8(uint32_t const cmd, uint8_t const *value , uint32_t const length);
     void SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length);
