@@ -14,7 +14,7 @@ First include the library and create a constructor:
 #define CS 11
 #define DC 13
 #define RST 12
-ILI948x_t4_mm lcd = ILI948x_t4_mm(DC,CS,RST); //(dc, cs, rst)
+ILI948x_t4_mm lcd = ILI948x_t4_mm(DC,CS,RST);
 ```
 You can use and GPIO pins for CS, DC and RST
 
@@ -36,17 +36,16 @@ in the setup function call:
 lcd.begin();
 ```
 
-Call 
+Call the following function for a polling method write:
 ```
 lcd.pushPixels16bit(flexio_teensy_mm,0,0,480,320);
 ```
-or
+or call the following function for an async DMA write
 ```
-lcd.pushPixels16bit(flexio_teensy_mm,0,0,480,320);
+lcd.pushPixels16bitDMA(flexio_teensy_mm,0,0,480,320);
 ```
-to push the image data.
-the arguments are as follows:
-* uint16_t color array
+to push the image data, the arguments are as follows:
+* uint16_t color array (RGB565)
 * uint16_t x1
 * uint16_t y1
 * uint16_t x2
