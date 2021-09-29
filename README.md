@@ -1,8 +1,7 @@
 # ILI948x_t4_mm
-A basic display driver for ILI948X series on a Teensy Micromod
+## A basic display driver for ILI948X series on a Teensy Micromod
 
-Intro:
-This is an experimental library, currently a WIP.
+**Disclaimer: This is an experimental library, currently a WIP. I cannot guarantee that all functions will work nor can I guarantee that this library will work with other libraries. Use at your own risk**  
 
 This library can communicate (TX only at the moment) with an ILI9488/9486/9481 TFT LCD via an 8 bit parallel interface (8080)
 It utilizes FlexIO and DMA to write data to the screen while offloading the task from the CPU.
