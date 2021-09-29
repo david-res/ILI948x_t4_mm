@@ -196,7 +196,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bit(const uint16_t * pcolors, uint16_t x
   {
     //Wait for any DMA transfers to complete
   }
-  uint32_t area = (x2-x1)*(y2-y1);
+  uint32_t area = (x2-x1+1)*(y2-y1+1);
   if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
   setAddrWindow( x1, y1, x2, y2);
      _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
@@ -209,11 +209,12 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_
   {
     //Wait for any DMA transfers to complete
   }
-  uint32_t area = ((x2-x1)*(y2-y1)*2);
+  uint32_t area = (x2-x1+1)*(y2-y1+1);
   if (!((_lastx1 == x1) && (_lastx2 == x2) && (_lasty1 == y1) && (_lasty2 == y2))) {
   setAddrWindow(x1, y1, x2, y2);
      _lastx1 = x1;  _lastx2 = x2;  _lasty1 = y1;  _lasty2 = y2;
   }
+
   MulBeatWR_nPrm_DMA(ILI9488_RAMWR, pcolors, area);
 }
 
@@ -670,11 +671,11 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     FlexIO_Config_MultiBeat();
     
     MulBeatCountRemain = length % BeatsPerMinLoop;
-    MulBeatDataRemain = (uint16_t*)value + ((length - MulBeatCountRemain)/2); // pointer to the next unused byte (overflow if MulBeatCountRemain = 0)
-    TotalSize = length - MulBeatCountRemain;               /* in bytes */
+    MulBeatDataRemain = (uint16_t*)value + ((length - MulBeatCountRemain)); // pointer to the next unused byte (overflow if MulBeatCountRemain = 0)
+    TotalSize = (length - MulBeatCountRemain)*2;               /* in bytes */
     minorLoopBytes = SHIFTNUM * sizeof(uint32_t);
     majorLoopCount = TotalSize/minorLoopBytes;
-    Serial.printf("Length: %d, Count remain: %d, Data remain: %d, TotalSize: %d, majorLoopCount: %d \n",length, MulBeatCountRemain, MulBeatDataRemain, TotalSize, majorLoopCount );
+    Serial.printf("Length(16bit): %d, Count remain(16bit): %d, Data remain: %d, TotalSize(8bit): %d, majorLoopCount: %d \n",length, MulBeatCountRemain, MulBeatDataRemain, TotalSize, majorLoopCount );
 
     /* Configure FlexIO with multi-beat write configuration */
     flexDma.begin();
@@ -770,10 +771,10 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
         FlexIO_Config_SnglBeat();
         
 
-        Serial.printf("Starting single beat completion: %d", MulBeatCountRemain);
+        Serial.printf("Starting single beat completion: %d \n", MulBeatCountRemain);
 
         /* Use polling method for data transfer */
-        for(uint32_t i=0; i<(MulBeatCountRemain/2); i++)
+        for(uint32_t i=0; i<(MulBeatCountRemain); i++)
         {
           value = *MulBeatDataRemain++;
             while(0 == (p->SHIFTSTAT & (1U << 0)))

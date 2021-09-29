@@ -13,8 +13,8 @@ void setup() {
 
 void loop() {
   delay(1000);
-  lcd.pushPixels16bit(flexio_teensy_mm,0,0,480,320);
+  lcd.pushPixels16bit(flexio_teensy_mm,0,0,479,319); // 480x320
   delay(1000);
-  lcd.pushPixels16bitDMA(flexio_teensy_mm,0,0,480,320);
+  lcd.pushPixels16bitDMA(flexio_teensy_mm,0,0,479,319); // 480x320
   delay(1000);
 }

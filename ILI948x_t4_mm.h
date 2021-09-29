@@ -6,7 +6,7 @@
 #include "DMAChannel.h"
 
 
-#define CLOCKDIV 40
+#define CLOCKDIV 20
 
 #define SHIFTNUM 4 // number of shifters used (must be 1, 2, 4, or 8)
 #define SHIFTER_DMA_REQUEST 3 // only 0, 1, 2, 3 expected to work
