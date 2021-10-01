@@ -25,6 +25,11 @@ FLASHMEM void ILI948x_t4_mm::begin()
   digitalWriteFast(_cs, HIGH);
   digitalWriteFast(_dc, HIGH);
 
+  delay(15);
+  digitalWrite(_rst, LOW);
+  delay(15);
+  digitalWriteFast(_rst, HIGH);
+
   FlexIO_Init();
 
   displayInit();
