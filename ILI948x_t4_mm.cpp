@@ -48,6 +48,24 @@ FLASHMEM void ILI948x_t4_mm::begin()
   
 }
 
+FLASHMEM void ILI948x_t4_mm::setBusSpd(uint8_t buad_div)
+{
+switch (buad_div) {
+    case 2:  _buad_div = 120;
+              break;
+    case 4:  _buad_div = 60;
+              break;
+    case 8:  _buad_div = 30;
+              break;
+    case 12:  _buad_div = 20;
+              break;
+    case 24:  _buad_div = 10;
+              break;
+    default:  _buad_div = 20; // 12Mhz
+              break;
+  }
+}
+
 FLASHMEM uint8_t ILI948x_t4_mm::setBitDepth(uint8_t bitDepth)  
 {
   uint8_t bd;
@@ -346,7 +364,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_SnglBeat()
     /* Configure the timer for shift clock */
     p->TIMCMP[0] = 
         (((1 * 2) - 1) << 8)                                                   /* TIMCMP[15:8] = number of beats x 2 – 1 */
-      | ((CLOCKDIV/2) - 1);                                                    /* TIMCMP[7:0] = baud rate divider / 2 – 1 */
+      | ((_buad_div/2) - 1);                                                    /* TIMCMP[7:0] = baud rate divider / 2 – 1 */
     
     p->TIMCFG[0] = 
         FLEXIO_TIMCFG_TIMOUT(0)                                                /* Timer output logic one when enabled and not affected by reset */
@@ -424,7 +442,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
     /* Configure the timer for shift clock */
     p->TIMCMP[0] = 
         ((MulBeatWR_BeatQty * 2U - 1) << 8)                                       /* TIMCMP[15:8] = number of beats x 2 – 1 */
-      | (CLOCKDIV/2U - 1U);                                                       /* TIMCMP[7:0] = shift clock divide ratio / 2 - 1 */
+      | (_buad_div/2U - 1U);                                                       /* TIMCMP[7:0] = shift clock divide ratio / 2 - 1 */
       
     p->TIMCFG[0] =   FLEXIO_TIMCFG_TIMOUT(0U)                                     /* Timer output logic one when enabled and not affected by reset */
       | FLEXIO_TIMCFG_TIMDEC(0U)                                                  /* Timer decrement on FlexIO clock, shift clock equals timer output */

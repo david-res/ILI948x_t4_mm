@@ -181,17 +181,16 @@ uint8_t CommandValue[15];
     CommandValue[13U] = 0x20;
     CommandValue[14U] = 0x00;
     SglBeatWR_nPrm_8(Command, CommandValue, 15U);
+
+    Command = 0x36; // Memory Access Control
+    CommandValue[0U] = 0x48;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1U);
  
-    Command = 0x20; // Display Inversion Control
+    Command = 0x20; // Display Inversion OFF
     SglBeatWR_nPrm_8(Command, 0, 0);
     
-    Command = 0x36; // Set rotation
-    CommandValue[0U] = 0x40|0x80|0x20|0x08; //Landscape
-    SglBeatWR_nPrm_8(Command, CommandValue, 1U);
-    
-
-    Command = 0x29; // Display Inversion Control
-    SglBeatWR_nPrm_8(Command, 0, 0); // display on
+    Command = 0x29; // Display ON
+    SglBeatWR_nPrm_8(Command, 0, 0); 
     delay(150);
     Serial.println("LCD Init");
 

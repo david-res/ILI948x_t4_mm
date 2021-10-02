@@ -6,8 +6,6 @@
 #include "DMAChannel.h"
 
 
-#define CLOCKDIV 20
-
 #define SHIFTNUM 4 // number of shifters used (must be 1, 2, 4, or 8)
 #define SHIFTER_DMA_REQUEST 3 // only 0, 1, 2, 3 expected to work
 
@@ -88,13 +86,19 @@
 #define MADCTL_MH  0x04  // LCD refresh right to left
 
 //MADCTL 0,1,2,3 for setting rotation and 4 for screenshot
+
 #define MADCTL_ARRAY {MADCTL_MX | MADCTL_BGR, MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_BGR, MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_MV | MADCTL_BGR}
+//#define MADCTL_ARRAY {0x02 | MADCTL_BGR, MADCTL_MV | MADCTL_BGR, 0x01 | MADCTL_BGR, 0x02 | 0x01 | MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_MV | MADCTL_BGR}
 
 #ifdef __cplusplus
 class ILI948x_t4_mm {
   public:
     ILI948x_t4_mm(int8_t dc, int8_t cs = -1, int8_t rst = -1);
     void begin();
+    void setBusSpd(uint8_t buad_div);
+    uint8_t getBusSpd();
+
+
     uint8_t setBitDepth(uint8_t bitDepth);
     uint8_t getBitDepth();
 
@@ -126,7 +130,7 @@ class ILI948x_t4_mm {
   const FlexIOHandler::FLEXIO_Hardware_t *hw;
   static DMAChannel flexDma;
    
-    
+    uint8_t _buad_div = 20; 
 
     uint8_t _bitDepth = 16;
     uint8_t _rotation = 0;
