@@ -7,8 +7,122 @@ uint8_t CommandValue[15];
 
 
 #if defined (ILI9481)
-///
-sdfs
+    Command = 0x11; 
+    CommandValue[0U] = 0x33;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0x11; 
+    FLEXIO_8080_SglBeatWR_nPrm(Command, 0, 0);
+    delay(20);
+
+    
+    Command = 0xD0; 
+    CommandValue[0U] = 0x07;
+    CommandValue[1U] = 0x41;
+    CommandValue[2U] = 0x1D;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 3U);
+
+    Command = 0xD1; 
+    CommandValue[0U] = 0x00;
+    CommandValue[1U] = 0x2B;
+    CommandValue[2U] = 0x1F;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 3U);
+
+    Command = 0xD2; 
+    CommandValue[0U] = 0x01;
+    CommandValue[1U] = 0x11;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 2U);
+
+    Command = 0xC0; 
+    CommandValue[0U] = 0x10;
+    CommandValue[1U] = 0x3B;
+    CommandValue[2U] = 0x00;
+    CommandValue[3U] = 0x02;
+    CommandValue[4U] = 0x11;
+    CommandValue[5U] = 0x00;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 6U);
+
+    Command = 0xC5; 
+    CommandValue[0U] = 0x03;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xC6; 
+    CommandValue[0U] = 0x80;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xC8; 
+    CommandValue[0U] = 0x00;
+    CommandValue[1U] = 0x14;
+    CommandValue[2U] = 0x33;
+    CommandValue[3U] = 0x10;
+    CommandValue[4U] = 0x00;
+    CommandValue[5U] = 0x16;
+    CommandValue[6U] = 0x44;
+    CommandValue[7U] = 0x36;
+    CommandValue[8U] = 0x77;
+    CommandValue[9U] = 0x00;
+    CommandValue[10U] = 0x0F;
+    CommandValue[11U] = 0x00;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 12U);
+
+    Command = 0xB0; 
+    CommandValue[0U] = 0x00;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xE4; 
+    CommandValue[0U] = 0xA0;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+    
+    Command = 0xF0; 
+    CommandValue[0U] = 0x08;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xF3; 
+    CommandValue[0U] = 0x40;
+    CommandValue[1U] = 0x0A;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 2U);
+    
+
+    Command = 0xF6; 
+    CommandValue[0U] = 0x84;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xF7; 
+    CommandValue[0U] = 0x80;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0xB3; 
+    CommandValue[0U] = 0x00;
+    CommandValue[1U] = 0x01;
+    CommandValue[2U] = 0x06;
+    CommandValue[3U] = 0x30;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 4U);
+
+    Command = 0xB4; 
+    CommandValue[0U] = 0x00;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+    Command = 0x0C; 
+    CommandValue[0U] = 0x00;
+    CommandValue[1U] = 0x55;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 2U);
+    
+
+    ommand = 0x36; // Memory Access Control
+    CommandValue[0U] = 0x48;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+
+
+    Command = 0x3A; // Set bit depth
+    CommandValue[0U] = 0x55;
+    FLEXIO_8080_SglBeatWR_nPrm(Command, CommandValue, 1U);
+    
+    Command = 0x21; // Display Inversion On
+    FLEXIO_8080_SglBeatWR_nPrm(Command, 0, 0U);
+
+    delay(120);
+    Command = 0x29; // Display On
+    FLEXIO_8080_SglBeatWR_nPrm(Command,0 ,0);
 
 #elif defined (ILI9486)
     Command = 0x11; // Sleep out, also SW reset
