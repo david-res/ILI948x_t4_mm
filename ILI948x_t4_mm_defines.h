@@ -108,7 +108,7 @@ uint8_t CommandValue[15];
     SglBeatWR_nPrm_8(Command, CommandValue, 2U);
     
 
-    ommand = 0x36; // Memory Access Control
+    Command = 0x36; // Memory Access Control
     CommandValue[0U] = 0x48;
     SglBeatWR_nPrm_8(Command, CommandValue, 1U);
 
