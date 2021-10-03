@@ -6,6 +6,7 @@
 This library can communicate (TX only at the moment) with an ILI9488/9486/9481 TFT LCD via an 8 bit parallel interface (8080)
 It utilizes FlexIO and DMA to write data to the screen while offloading the task from the CPU.
 It can only write an image array at the moment with defined start/end coordinates.
+The default bus speed is set to 12Mhz and can be lowered or raised with a simple function call.
 
 First include the library and create a constructor:
 ```
