@@ -124,6 +124,8 @@ uint8_t CommandValue[25];
     delay(120);
     Command = 0x29; // Display On
     SglBeatWR_nPrm_8(Command,0 ,0);
+    delay(120);
+    Serial.println("ILI9481 Initialized");
 
 #elif defined (ILI9486)
     Command = 0x11; // Sleep out, also SW reset
@@ -192,8 +194,8 @@ uint8_t CommandValue[25];
     
     Command = 0x29; // Display ON
     SglBeatWR_nPrm_8(Command, 0, 0); 
-    delay(150);
-    Serial.println("LCD Init");
+    delay(120);
+    Serial.println("ILI9486 Initialized");
 
 
 #elif defined (ILI9488)
@@ -286,8 +288,8 @@ uint8_t CommandValue[25];
     //delay(10);
     Command = 0x29; // Display On
     SglBeatWR_nPrm_8(Command,0 ,0);
-    delay(15);
-
+    //delay(15);
+    /*
     Command = 0x3A; // Set bit depth
     CommandValue[0U] = 0x55;
     SglBeatWR_nPrm_8(Command, CommandValue, 1U);
@@ -295,10 +297,13 @@ uint8_t CommandValue[25];
     Command = 0x36; // Set rotation
     CommandValue[0U] = 0x40|0x80|0x20|0x08; //Landscape
     SglBeatWR_nPrm_8(Command, CommandValue, 1U);
+    */
+    delay(120);
+    Serial.println("ILI9488 Initialized");
 
     
 
-#elif define(R61529)
+#elif defined(R61529)
     Command = 0x11; //TFT_SLPOUT
     delay(20);
     SglBeatWR_nPrm_8(Command, 0, 0);
@@ -519,7 +524,7 @@ uint8_t CommandValue[25];
     SglBeatWR_nPrm_8(Command, CommandValue, 1);
 
     Command = 0x3A; // set_pixel_format
-    CommandValue[0U] = 0x55); // 16-Bit/pixel = 55h, 24-bit/pixel = 77h
+    CommandValue[0U] = 0x55; // 16-Bit/pixel = 55h, 24-bit/pixel = 77h
     SglBeatWR_nPrm_8(Command, CommandValue, 1);
 
     Command = 0x2A; // TFT_CASET
@@ -540,5 +545,6 @@ uint8_t CommandValue[25];
     Command = 0x29; //TFT_DISPON
     SglBeatWR_nPrm_8(Command, CommandValue, 0);
 
-    delay(250);
+    delay(120);
+    Serial.println("R61519 Initialized");
 #endif

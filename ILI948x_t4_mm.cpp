@@ -1,16 +1,17 @@
 #include "ILI948x_t4_mm.h"
+DMAMEM uint32_t framebuff[DATABUFBYTES];
 
-
+#ifndef defined(ARDUINO_TEENSY_MICROMOD)
+#error This library only supports the Teensy Micromod!
+#endif
 
 FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst) 
 {
-  //#if defined(ARDUINO_TEENSY_MICROMOD)
+  
   _dc = dc;
   _cs = cs;
   _rst = rst;
-  //#else
-  //#error This library only supports the Teensy Micromod!
-  //#endif
+  
 }
 
 FLASHMEM void ILI948x_t4_mm::begin() 
@@ -689,8 +690,8 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
   */ 
 
  // else{
-    //memcpy(databuf, pcolors, len); 
-    //arm_dcache_flush((void*)databuf, sizeof(databuf)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
+    memcpy(framebuff, value, length); 
+    arm_dcache_flush((void*)framebuff, sizeof(framebuff)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
     
     FlexIO_Config_MultiBeat();
     
@@ -713,7 +714,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
 
     DMA_CR |= DMA_CR_EMLM; // enable minor loop mapping
 
-    sourceAddress = (uint16_t*)value + minorLoopBytes/sizeof(uint16_t) - 1; // last 16bit address within current minor loop
+    sourceAddress = (uint16_t*)framebuff + minorLoopBytes/sizeof(uint16_t) - 1; // last 16bit address within current minor loop
     sourceAddressOffset = -sizeof(uint16_t); // read values in reverse order
     minorLoopOffset = 2*minorLoopBytes; // source address offset at end of minor loop to advance to next minor loop
     sourceAddressLastOffset = minorLoopOffset - TotalSize; // source address offset at completion to reset to beginning
