@@ -1,7 +1,7 @@
 #include "ILI948x_t4_mm.h"
 DMAMEM uint32_t framebuff[DATABUFBYTES];
 
-#ifndef defined(ARDUINO_TEENSY_MICROMOD)
+#if !defined(ARDUINO_TEENSY_MICROMOD)
 #error This library only supports the Teensy Micromod!
 #endif
 
