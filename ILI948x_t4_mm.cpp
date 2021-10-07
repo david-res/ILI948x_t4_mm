@@ -1,5 +1,5 @@
 #include "ILI948x_t4_mm.h"
-DMAMEM uint32_t framebuff[DATABUFBYTES];
+//DMAMEM uint32_t framebuff[DATABUFBYTES];
 
 #if !defined(ARDUINO_TEENSY_MICROMOD)
 #error This library only supports the Teensy Micromod!
@@ -14,8 +14,26 @@ FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst)
   
 }
 
-FLASHMEM void ILI948x_t4_mm::begin() 
+FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div) 
 {
+
+  Serial.printf("Bus speed: %d Mhz \n", buad_div);
+  switch (buad_div) {
+    case 2:  _buad_div = 60;
+              break;
+    case 4:  _buad_div = 30;
+              break;
+    case 8:  _buad_div = 16;
+              break;
+    case 12: _buad_div = 10;
+              break;
+    case 20: _buad_div = 6;
+              break;
+    case 30: _buad_div = 4;
+              break;
+    default: _buad_div = 10; // 12Mhz
+              break;
+  }
   pinMode(_cs, OUTPUT); // CS
   pinMode(_dc, OUTPUT); // DC
   pinMode(_rst, OUTPUT); // RST
@@ -49,23 +67,6 @@ FLASHMEM void ILI948x_t4_mm::begin()
   
 }
 
-FLASHMEM void ILI948x_t4_mm::setBusSpd(uint8_t buad_div)
-{
-switch (buad_div) {
-    case 2:  _buad_div = 120;
-              break;
-    case 4:  _buad_div = 60;
-              break;
-    case 8:  _buad_div = 30;
-              break;
-    case 12:  _buad_div = 20;
-              break;
-    case 24:  _buad_div = 10;
-              break;
-    default:  _buad_div = 20; // 12Mhz
-              break;
-  }
-}
 
 FLASHMEM uint8_t ILI948x_t4_mm::setBitDepth(uint8_t bitDepth)  
 {
@@ -314,7 +315,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Init()
     *(portControlRegister(9)) = 0xFF;
 
     /* Set clock */
-    pFlex->setClockSettings(3, 1, 0); // (480 MHz source, 1+1, 1+0) >> 480/2/1 >> 240Mhz
+    pFlex->setClockSettings(3, 1, 1); // (480 MHz source, 1+1, 1+0) >> 480/2/1 >> 240Mhz
 
     /* Set up pin mux */
     pFlex->setIOPinToFlexMode(10);
@@ -353,14 +354,6 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_SnglBeat()
       | FLEXIO_SHIFTCTL_PINSEL(4)                                              /* Shifter's pin start index */
       | FLEXIO_SHIFTCTL_PINPOL*(0)                                             /* Shifter's pin active high */
       | FLEXIO_SHIFTCTL_SMOD(2);                                               /* Shifter mode as transmit */
-
-
-    for(uint i=1; i<=SHIFTNUM-1; i++)
-          {
-            p->SHIFTCFG[i] = 0;
-            p->SHIFTCTL[i] =0;
-          }
-
 
     /* Configure the timer for shift clock */
     p->TIMCMP[0] = 
@@ -658,8 +651,8 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     DCHigh();
     microSecondDelay();
 
-/*
-  if (length < 16){
+
+  if (length < 8){
     Serial.println ("In DMA but to Short to multibeat");
     const uint16_t * newValue = (uint16_t*)value;
     uint16_t buf;
@@ -687,11 +680,10 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     CSHigh();
 
   }
-  */ 
 
- // else{
-    memcpy(framebuff, value, length); 
-    arm_dcache_flush((void*)framebuff, sizeof(framebuff)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
+  else{
+    //memcpy(framebuff, value, length); 
+    //arm_dcache_flush((void*)framebuff, sizeof(framebuff)); // always flush cache after writing to DMAMEM variable that will be accessed by DMA
     
     FlexIO_Config_MultiBeat();
     
@@ -714,7 +706,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
 
     DMA_CR |= DMA_CR_EMLM; // enable minor loop mapping
 
-    sourceAddress = (uint16_t*)framebuff + minorLoopBytes/sizeof(uint16_t) - 1; // last 16bit address within current minor loop
+    sourceAddress = (uint16_t*)value + minorLoopBytes/sizeof(uint16_t) - 1; // last 16bit address within current minor loop
     sourceAddressOffset = -sizeof(uint16_t); // read values in reverse order
     minorLoopOffset = 2*minorLoopBytes; // source address offset at end of minor loop to advance to next minor loop
     sourceAddressLastOffset = minorLoopOffset - TotalSize; // source address offset at completion to reset to beginning
@@ -753,9 +745,9 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     flexDma.enable();
     Serial.println("Starting transfer");
     dmaCallback = this;
- //  }
+   }
 }
-//
+
 
 FASTRUN void ILI948x_t4_mm::dmaISR()
 {
@@ -767,7 +759,7 @@ FASTRUN void ILI948x_t4_mm::dmaISR()
 
 FASTRUN void ILI948x_t4_mm::flexDma_Callback()
 {
-    Serial.println("DMA callback triggred");
+    Serial.printf("DMA callback triggred \n");
     
     /* the interrupt is called when the final DMA transfer completes writing to the shifter buffers, which would generally happen while
     data is still in the process of being shifted out from the second-to-last major iteration. In this state, all the status flags are cleared.
