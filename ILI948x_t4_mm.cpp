@@ -19,19 +19,21 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
 
   Serial.printf("Bus speed: %d Mhz \n", buad_div);
   switch (buad_div) {
-    case 2:  _buad_div = 60;
+    case 2:  _buad_div = 120;
               break;
-    case 4:  _buad_div = 30;
+    case 4:  _buad_div = 60;
               break;
-    case 8:  _buad_div = 16;
+    case 8:  _buad_div = 30;
               break;
-    case 12: _buad_div = 10;
+    case 12: _buad_div = 20;
               break;
-    case 20: _buad_div = 6;
+    case 20: _buad_div = 12;
               break;
-    case 30: _buad_div = 4;
+    case 24: _buad_div = 10;
               break;
-    default: _buad_div = 10; // 12Mhz
+    case 40: _buad_div = 6;
+              break;
+    default: _buad_div = 20; // 12Mhz
               break;
   }
   pinMode(_cs, OUTPUT); // CS
@@ -315,7 +317,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Init()
     *(portControlRegister(9)) = 0xFF;
 
     /* Set clock */
-    pFlex->setClockSettings(3, 1, 1); // (480 MHz source, 1+1, 1+0) >> 480/2/1 >> 240Mhz
+    pFlex->setClockSettings(3, 1, 0); // (480 MHz source, 1+1, 1+0) >> 480/2/1 >> 240Mhz
 
     /* Set up pin mux */
     pFlex->setIOPinToFlexMode(10);
