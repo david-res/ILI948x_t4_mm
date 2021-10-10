@@ -1,16 +1,17 @@
 //#define ILI9481  
-#define ILI9486
-//#define ILI9488  
-//#define R61529  
+//#define ILI9486
+//#define ILI9488
+#include "Arduino.h" 
+#define R61529  
 
 uint8_t Command;
 uint8_t CommandValue[25];
 
 
 #if defined (ILI9481)
-    Command = 0x11; 
-    CommandValue[0U] = 0x33;
-    SglBeatWR_nPrm_8(Command, CommandValue, 1U);
+    Command = 0x01; //SW RST
+    SglBeatWR_nPrm_8(Command,0 ,0);
+    delay(120);
 
     Command = 0x11; 
     SglBeatWR_nPrm_8(Command, 0, 0);
@@ -128,9 +129,13 @@ uint8_t CommandValue[25];
     Serial.println("ILI9481 Initialized");
 
 #elif defined (ILI9486)
+    Command = 0x01; //SW RST
+    SglBeatWR_nPrm_8(Command,0 ,0);
+    delay(120);
+
     Command = 0x11; // Sleep out, also SW reset
     SglBeatWR_nPrm_8(Command, 0, 0);
-    delay(120);
+    delay(20);
 
     Command = 0x3A; // Set bit depth
     CommandValue[0U] = 0x55;
@@ -304,9 +309,14 @@ uint8_t CommandValue[25];
     
 
 #elif defined(R61529)
+
+    Command = 0x01; //SW RST
+    SglBeatWR_nPrm_8(Command,0 ,0);
+    delay(120);
+
     Command = 0x11; //TFT_SLPOUT
-    delay(20);
     SglBeatWR_nPrm_8(Command, 0, 0);
+    delay(20);
 
     Command = 0xB0;
     CommandValue[0U] = 0x04;
@@ -335,7 +345,7 @@ uint8_t CommandValue[25];
     CommandValue[18U] = 0x00;
     CommandValue[19U] = 0x00;
     SglBeatWR_nPrm_8(Command, CommandValue, 20U);
-
+    
     Command = 0xB9; //lcd pwm
     CommandValue[0U] = 0x01; // PWMON = 1;
     CommandValue[1U] = 0x00; // BDCV = 255;
@@ -345,11 +355,11 @@ uint8_t CommandValue[25];
 
     //additional commands:
     Command = 0xB3; //Frame Memory Access and Interface Setting
-    CommandValue[0U] = 0x02; // reset start position of a window area address...
+    CommandValue[0U] = 0x00; // reset start position of a window area address...
     CommandValue[1U] = 0x00; //TE pin is used. TE signal is output every frame.
     CommandValue[2U] = 0x00; // empty according to the datasheet - does nothing;
     CommandValue[3U] = 0x00; // convert 16/18 bits to 24bits data by writing zeroes to LSBs. Sets image data write/read format(?)
-    CommandValue[4U] = 0x00;  // ???? (not needed?)
+    //CommandValue[4U] = 0x0C;  // ???? (not needed?)
     SglBeatWR_nPrm_8(Command, CommandValue, 5U);
     delay(2);
 
@@ -386,7 +396,7 @@ uint8_t CommandValue[25];
     Command = 0xC6; //DPI polarity control
     CommandValue[0U] = 0x04; // VSYNC -Active Low. HSYNC - Active Low. DE pin enable data write in when DE=1. Reads data on the rising edge of the PCLK signal.
     SglBeatWR_nPrm_8(Command, CommandValue, 1U);
-
+    
     //----Gamma setting start-----
     Command = 0xC8;
     CommandValue[0U] = 0x03;
@@ -402,6 +412,7 @@ uint8_t CommandValue[25];
     CommandValue[10U] = 0x12;
     CommandValue[11U] = 0x04;
 
+    
     CommandValue[12U] = 0x03;
     CommandValue[13U] = 0x12;
     CommandValue[14U] = 0x1A;
@@ -414,6 +425,7 @@ uint8_t CommandValue[25];
     CommandValue[21U] = 0x18;
     CommandValue[22U] = 0x12;
     CommandValue[23U] = 0x04;
+    
     SglBeatWR_nPrm_8(Command, CommandValue, 24);
 
     Command = 0xC9;
@@ -471,8 +483,11 @@ uint8_t CommandValue[25];
     CommandValue[22U] = 0x12;
     CommandValue[23U] = 0x04;
     SglBeatWR_nPrm_8(Command, CommandValue, 24);
+
+    
 //---Gamma setting end--------
     //old ones:
+    
     Command = 0xD0;
     CommandValue[0U] = 0x99;//DC4~1//A5. Set up clock cycle of the internal step up controller.
     CommandValue[1U] = 0x06;//BT // Set Voltage step up factor.
@@ -503,8 +518,8 @@ uint8_t CommandValue[25];
     CommandValue[0U] = 0x00;//NVM access is disabled
     CommandValue[1U] = 0x00;//Erase operation (disabled).
     CommandValue[2U] = 0x00;//TE pin works as tearing effect pin. 
-    // should be one more CommandValue[3U] = 0x00; according to the datasheet.
-    SglBeatWR_nPrm_8(Command, CommandValue, 3);
+    CommandValue[3U] = 0x00; //according to the datasheet.
+    SglBeatWR_nPrm_8(Command, CommandValue, 4);
 
     Command = 0xE1; //set_DDB_write_control
     CommandValue[0U] = 0x00; 
@@ -519,9 +534,9 @@ uint8_t CommandValue[25];
     CommandValue[0U] = 0x00; // does not execute data load from the NVM to each command
     SglBeatWR_nPrm_8(Command, CommandValue, 1);
 
-    Command = 0x36; //MADCTL
-    CommandValue[0U] = 0x00;
-    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+    //Command = 0x36; //MADCTL
+    //CommandValue[0U] = 0x00;
+    //SglBeatWR_nPrm_8(Command, CommandValue, 1);
 
     Command = 0x3A; // set_pixel_format
     CommandValue[0U] = 0x55; // 16-Bit/pixel = 55h, 24-bit/pixel = 77h
