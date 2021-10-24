@@ -192,7 +192,11 @@ FLASHMEM void ILI948x_t4_mm::invertDisplay(bool invert)
   SglBeatWR_nPrm_8(invert ? ILI9488_INVON : ILI9488_INVOFF,0,0);
 }
 
-
+FLASHMEM void ILI948x_t4_mm::onCompleteCB(CBF callback)
+{
+  _callback = callback;
+  isCB = true;
+}
 
 FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) 
 {
@@ -750,6 +754,14 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
    }
 }
 
+FASTRUN void ILI948x_t4_mm::_onCompleteCB()
+{
+if (_callback){
+      _callback();
+    }
+    return;
+}
+
 
 FASTRUN void ILI948x_t4_mm::dmaISR()
 {
@@ -839,6 +851,9 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
 
     WR_DMATransferDone = true;
 //    flexDma.disable(); // not necessary because flexDma is already configured to disable on completion
+    if(isCB){
+    _onCompleteCB();
+    }
 }
 
 

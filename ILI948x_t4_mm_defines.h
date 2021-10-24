@@ -1,8 +1,10 @@
+#include "Arduino.h" 
 //#define ILI9481  
 //#define ILI9486
 //#define ILI9488
-#include "Arduino.h" 
-#define R61529  
+#define R61529 
+
+ 
 
 uint8_t Command;
 uint8_t CommandValue[25];
