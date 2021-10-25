@@ -36,7 +36,9 @@ in the setup function call:
 ILI948x_t4_mm::begin();
 ```
 The default baud rate is 12Mhz
+
 In the begin(n) function you can pass 2,4,8,12,20,24 and 40 to lower or raise the baud rate.
+
 
 Call the following function for a polling method write:
 ```
@@ -54,6 +56,8 @@ to push the image data, the arguments are as follows:
 * uint16_t y2
 
 Additional API's:
+
+
 Set rotation: 1,2,3,4
 ```
 ILI948x_t4_mm::setRotation(n);
