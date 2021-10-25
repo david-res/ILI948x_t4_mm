@@ -16,8 +16,7 @@ FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst)
 
 FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div) 
 {
-
-  Serial.printf("Bus speed: %d Mhz \n", buad_div);
+  //Serial.printf("Bus speed: %d Mhz \n", buad_div);
   switch (buad_div) {
     case 2:  _buad_div = 120;
               break;
@@ -520,29 +519,6 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 
     if(length)
     {
-      /*
-        // Use polling method for data transfer 
-        for(uint32_t i=0; i<length-1; i++)
-        {
-            while(0 == (p->SHIFTSTAT & (1U << 0)))
-            {
-            }
-            p->SHIFTBUF[0] = *buffer++;
-        }
-
-        // Write the last byte
-        
-        while(0 == (p->SHIFTSTAT & (1U << 0)) && (p->TIMSTAT & (1U << 0)))
-        {
-        }
-        //p->TIMSTAT |= (1U << 0);
-        p->SHIFTBUF[0] = *buffer++;
-        
-        //Wait for transfer to be completed 
-        while(0 == (p->TIMSTAT & (1U << 0)) && (p->SHIFTSTAT & (1U << 0)))
-        {
-        }
-        */
         for(i = 0; i < length; i++)
         {    
             p->SHIFTBUF[0] = *value++;
@@ -659,7 +635,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
 
 
   if (length < 8){
-    Serial.println ("In DMA but to Short to multibeat");
+    //Serial.println ("In DMA but to Short to multibeat");
     const uint16_t * newValue = (uint16_t*)value;
     uint16_t buf;
     for(uint32_t i=0; i<length; i++)
@@ -698,7 +674,7 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     TotalSize = (length - MulBeatCountRemain)*2;               /* in bytes */
     minorLoopBytes = SHIFTNUM * sizeof(uint32_t);
     majorLoopCount = TotalSize/minorLoopBytes;
-    Serial.printf("Length(16bit): %d, Count remain(16bit): %d, Data remain: %d, TotalSize(8bit): %d, majorLoopCount: %d \n",length, MulBeatCountRemain, MulBeatDataRemain, TotalSize, majorLoopCount );
+    //Serial.printf("Length(16bit): %d, Count remain(16bit): %d, Data remain: %d, TotalSize(8bit): %d, majorLoopCount: %d \n",length, MulBeatCountRemain, MulBeatDataRemain, TotalSize, majorLoopCount );
 
     /* Configure FlexIO with multi-beat write configuration */
     flexDma.begin();
@@ -743,13 +719,13 @@ FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *
     flexDma.interruptAtCompletion();
     flexDma.clearComplete();
     
-    Serial.println("Dma setup done");
+    //Serial.println("Dma setup done");
 
     /* Start data transfer by using DMA */
     WR_DMATransferDone = false;
     flexDma.attachInterrupt(dmaISR);
     flexDma.enable();
-    Serial.println("Starting transfer");
+    //Serial.println("Starting transfer");
     dmaCallback = this;
    }
 }
@@ -773,7 +749,7 @@ FASTRUN void ILI948x_t4_mm::dmaISR()
 
 FASTRUN void ILI948x_t4_mm::flexDma_Callback()
 {
-    Serial.printf("DMA callback triggred \n");
+    //Serial.printf("DMA callback start triggred \n");
     
     /* the interrupt is called when the final DMA transfer completes writing to the shifter buffers, which would generally happen while
     data is still in the process of being shifted out from the second-to-last major iteration. In this state, all the status flags are cleared.
@@ -802,7 +778,7 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
         FlexIO_Config_SnglBeat();
         
 
-        Serial.printf("Starting single beat completion: %d \n", MulBeatCountRemain);
+        //Serial.printf("Starting single beat completion: %d \n", MulBeatCountRemain);
 
         /* Use polling method for data transfer */
         for(uint32_t i=0; i<(MulBeatCountRemain); i++)
@@ -839,7 +815,7 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
         while(0 == (p->TIMSTAT |= (1U << 0)))
         {
         }
-        Serial.println("Finished single beat completion");
+        //Serial.println("Finished single beat completion");
     }
 
     microSecondDelay();
@@ -852,8 +828,11 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
     WR_DMATransferDone = true;
 //    flexDma.disable(); // not necessary because flexDma is already configured to disable on completion
     if(isCB){
+      //Serial.printf("custom callback triggred \n");
     _onCompleteCB();
+    
     }
+    //Serial.printf("DMA callback end triggred \n");
 }
 
 

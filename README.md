@@ -33,16 +33,18 @@ Wire the RD pin on the LCD to 3.3v
 
 in the setup function call:
 ```
-lcd.begin();
+ILI948x_t4_mm::begin();
 ```
+The default baud rate is 12Mhz
+In the begin(n) function you can pass 2,4,8,12,20,24 and 40 to lower or raise the baud rate.
 
 Call the following function for a polling method write:
 ```
-lcd.pushPixels16bit(flexio_teensy_mm,0,0,480,320);
+ILI948x_t4_mm::pushPixels16bit(flexio_teensy_mm,0,0,480,320);
 ```
 or call the following function for an async DMA write
 ```
-lcd.pushPixels16bitDMA(flexio_teensy_mm,0,0,480,320);
+ILI948x_t4_mm::pushPixels16bitDMA(flexio_teensy_mm,0,0,480,320);
 ```
 to push the image data, the arguments are as follows:
 * uint16_t color array (RGB565)
@@ -51,5 +53,20 @@ to push the image data, the arguments are as follows:
 * uint16_t x2
 * uint16_t y2
 
+Additional API's:
+Set rotation: 1,2,3,4
+```
+ILI948x_t4_mm::setRotation(n);
+```
+
+Invert display color (true/false)
+```
+ILI948x_t4_mm::invertDisplay(bool);
+```
+
+Register a callback to trigger when the DMA transfer completes - ONLY ON DMA METHOD
+```
+ILI948x_t4_mm::onCompleteCB(CBF callback);
+```
 ![Image of TFT with Teensy MM image](https://github.com/david-res/ILI948x_t4_mm/blob/master/mm_flexio_example.jpg)
 
