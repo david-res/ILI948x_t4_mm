@@ -1,5 +1,7 @@
 #include "Arduino.h" 
-//#define ILI9481  
+//#define ILI9481_1
+//#define ILI9481_2
+
 //#define ILI9486
 //#define ILI9488
 #define R61529 
@@ -10,7 +12,7 @@ uint8_t Command;
 uint8_t CommandValue[25];
 
 
-#if defined (ILI9481)
+#if defined (ILI9481_1)
     Command = 0x01; //SW RST
     SglBeatWR_nPrm_8(Command,0 ,0);
     delay(120);
@@ -129,6 +131,147 @@ uint8_t CommandValue[25];
     SglBeatWR_nPrm_8(Command,0 ,0);
     delay(120);
     Serial.println("ILI9481 Initialized");
+
+#elif defined (ILI9481_2)
+    Command = 0x01; //Soft_reset
+    SglBeatWR_nPrm_8(Command, 0, 0);
+    delay(150);
+
+    Command = 0x11;
+    SglBeatWR_nPrm_8(Command, 0, 0);
+    delay(150);
+
+    Command = 0xd0; //Power_Setting
+    CommandValue[0U] =0x07;//07  VC[2:0] Sets the ratio factor of Vci to generate the reference voltages Vci1
+    CommandValue[1U] =0x44;//41  BT[2:0] Sets the Step up factor and output voltage level from the reference voltages Vci1
+    CommandValue[2U] =0x1E;//1f  17   1C  VRH[3:0]: Sets the factor to generate VREG1OUT from VCILVL
+    SglBeatWR_nPrm_8(Command, CommandValue, 3);
+    delay(150);
+
+    Command = 0xd1; //VCOM Control
+    CommandValue[0U] =0x00;//00
+    CommandValue[1U] =0x0C;//1A   VCM [6:0] is used to set factor to generate VCOMH voltage from the reference voltage VREG1OUT  15    09
+    CommandValue[2U] =0x1A;//1F   VDV[4:0] is used to set the VCOM alternating amplitude in the range of VREG1OUT x 0.70 to VREG1OUT   1F   18
+    SglBeatWR_nPrm_8(Command, CommandValue, 3);
+
+    Command =0xC5;  //Frame Rate
+    CommandValue[0U] = 0x03; // 03   02
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    Command = 0xd2;  //Power_Setting for Normal Mode 
+    CommandValue[0U] =0x01;  //01
+    CommandValue[1U] =0x11;  //11
+    SglBeatWR_nPrm_8(Command, CommandValue, 2);
+
+    Command = 0xE4;  //?
+    CommandValue[0U] =0xa0;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    Command = 0xf3;
+    CommandValue[0U] =0x00;
+    CommandValue[1U] =0x2a;
+    SglBeatWR_nPrm_8(Command, CommandValue, 2);
+
+    //1  OK
+    Command =0xc8;
+    CommandValue[0U] = 0x00;
+    CommandValue[1U] = 0x26;
+    CommandValue[2U] = 0x21;
+    CommandValue[3U] = 0x00;
+    CommandValue[4U] = 0x00;
+    CommandValue[5U] = 0x1f;
+    CommandValue[6U] = 0x65;
+    CommandValue[7U] = 0x23;
+    CommandValue[8U] = 0x77;
+    CommandValue[9U] = 0x00;
+    CommandValue[10U] = 0x0f;
+    CommandValue[11U] = 0x00;
+    SglBeatWR_nPrm_8(Command, CommandValue, 12);
+    //GAMMA SETTING
+
+    Command = 0xC0;	//Panel Driving Setting																          
+    CommandValue[0U] =0x00; //1//00  REV  SM  GS
+    CommandValue[1U] =0x3B; //2//NL[5:0]: Sets the number of lines to drive the LCD at an interval of 8 lines. 
+    CommandValue[2U] =0x00; //3//SCN[6:0]
+    CommandValue[3U] =0x02; //4//PTV: Sets the Vcom output in non-display area drive period
+    CommandValue[4U] =0x11; //5//NDL: Sets the source output level in non-display area.  PTG: Sets the scan mode in non-display area.
+    SglBeatWR_nPrm_8(Command, CommandValue, 5);
+
+    Command = 0xc6; //Interface Control 
+    CommandValue[0U] =0x83;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+    //GAMMA SETTING 
+
+    Command = 0xf0; //?
+    CommandValue[0U] =0x01;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    Command = 0xE4;//?
+    CommandValue[0U] =0xa0;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    ///��װ����OK 20180510 
+    //Command = 0x36);   
+    //CommandValue[0U] = 0x0A); //0A
+
+    ////20180510 FPC�����ұ�:CCH:03, 36H:20   OK
+    //Command = 0xCC);//SetPanel
+    //CommandValue[0U] = 0x03);//BGR_Panel  03 
+    //Command = 0x36);
+    //CommandValue[0U] = 0x20);  // MY MX MV ML BGR MH HF VF  4A     48  08  00
+                        // MY MX MV ML BGR MH X X
+                        // MY(B7) Row Address Order
+                        // MX(B6) Column Address Order
+                        // MV(B5) Row / Column Exchange
+                        // ML(B4) Vertical Refresh Order
+                        // BGR(B3)(0=RGB color filter panel, 1=BGR color filter panel)
+                        // SS(B2) Horizontal ORDER (SS),LCD horizontal refresh direction control
+                        // -
+                        // -
+                        
+    ////20180510 FPC�������: 36H:F8  
+    //Command = 0x36);
+    //CommandValue[0U] = 0xF8);
+
+    //////��װ����   NG
+    Command = 0x36;   
+    CommandValue[0U] = 0x8C); //  8C:��������   CA������һ����
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    Command = 0x3a;
+    CommandValue[0U] =0x55;
+    SglBeatWR_nPrm_8(Command, CommandValue, 1);
+
+    Command = 0xb4;//Display Mode and Frame Memory Write Mode Setting
+    CommandValue[0U] =0x02;
+    CommandValue[1U] =0x00; //?
+    CommandValue[2U] =0x00;
+    CommandValue[3U] =0x01;
+    SglBeatWR_nPrm_8(Command, CommandValue, 4);
+
+    delay(280);
+
+    Command = 0x2a;
+    CommandValue[0U] =0x00;
+    CommandValue[1U] =0x00;
+    CommandValue[2U] =0x01;
+    CommandValue[3U] =0x3F; //3F
+    SglBeatWR_nPrm_8(Command, CommandValue, 4);
+
+    Command = 0x2b;
+    CommandValue[0U] =0x00;
+    CommandValue[1U] =0x00;
+    CommandValue[2U] =0x01;
+    CommandValue[3U] =0xDf; //DF
+    SglBeatWR_nPrm_8(Command, CommandValue, 4);
+
+    delay(10);
+    //Command = 0x21;
+    Command = 0x29;	
+    SglBeatWR_nPrm_8(Command, 0, 0);
+
+    Command = 0x2c;	
+    SglBeatWR_nPrm_8(Command, 0, 0);
 
 #elif defined (ILI9486)
     Command = 0x01; //SW RST

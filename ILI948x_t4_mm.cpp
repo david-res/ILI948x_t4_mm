@@ -33,7 +33,7 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
     case 40: _buad_div = 6;
               break;
     default: _buad_div = 20; // 12Mhz
-              break;
+              break;           
   }
   pinMode(_cs, OUTPUT); // CS
   pinMode(_dc, OUTPUT); // DC
@@ -54,6 +54,7 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
   FlexIO_Init();
 
   displayInit();
+  /*
   setBitDepth(_bitDepth);
 
   setTearingEffect(_bTearingOn);
@@ -61,7 +62,8 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
     setTearingScanLine(_tearingScanLine);
   }  
   setFrameRate(_frameRate);
-
+  */
+ 
   _width  = _TFTWIDTH;
   _height = _TFTHEIGHT;
 
@@ -341,6 +343,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Init()
 
 FASTRUN void ILI948x_t4_mm::FlexIO_Config_SnglBeat()
 {
+  
     p->CTRL &= ~FLEXIO_CTRL_FLEXEN;
     p->CTRL |= FLEXIO_CTRL_SWRST;
     p->CTRL &= ~FLEXIO_CTRL_SWRST;
