@@ -30,6 +30,8 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
               break;
     case 24: _buad_div = 10;
               break;
+    case 30: _buad_div = 8;
+              break;
     case 40: _buad_div = 6;
               break;
     default: _buad_div = 20; // 12Mhz
