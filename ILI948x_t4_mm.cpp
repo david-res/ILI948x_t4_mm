@@ -43,9 +43,10 @@ FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div)
   *(portControlRegister(_cs)) = 0xFF;
   *(portControlRegister(_dc)) = 0xFF;
   *(portControlRegister(_rst)) = 0xFF;
-  digitalWriteFast(_rst, HIGH);
+  
   digitalWriteFast(_cs, HIGH);
   digitalWriteFast(_dc, HIGH);
+  digitalWriteFast(_rst, HIGH);
 
   delay(15);
   digitalWrite(_rst, LOW);
