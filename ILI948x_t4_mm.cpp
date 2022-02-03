@@ -314,7 +314,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Init()
     digitalWriteFast(10,HIGH);
 
     /* High speed and drive strength configuration */
-    *(portControlRegister(0)) = 0xFF; //10 
+    *(portControlRegister(10)) = 0xFF; //10 
     *(portControlRegister(40)) = 0xFF;
     *(portControlRegister(41)) = 0xFF;
     *(portControlRegister(42)) = 0xFF;
