@@ -777,10 +777,12 @@ FASTRUN void ILI948x_t4_mm::flexDma_Callback()
     while() statement and use the software delay .*/
     p->TIMSTAT |= (1U << 0U);
 
-    /* Wait timer flag to be set to ensure the completing of the last beat. */
+    /* Wait timer flag to be set to ensure the completing of the last beat.
     while(0 == (p->TIMSTAT & (1U << 0U)))
     {
     }
+    */
+    delayMicroseconds(200);
     
     if(MulBeatCountRemain)
     {
