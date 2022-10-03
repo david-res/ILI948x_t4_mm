@@ -108,10 +108,13 @@ FLASHMEM uint8_t ILI948x_t4_mm::getBitDepth()
 
 FLASHMEM void ILI948x_t4_mm::setFrameRate(uint8_t frRate) 
 {
-  _frameRate = frRate;
+ _frameRate = frRate;
 
   uint8_t fr28Hz[2] = {0x00, 0x11}; // 28.78fps, 17 clocks
   uint8_t fr30Hz[2] = {0x10, 0x11}; // 30.38fps, 17 clocks
+  uint8_t fr39Hz[2] = {0x50, 0x11}; // 39.06fps, 17 clocks
+  uint8_t fr45Hz[2] = {0x70, 0x11}; // 45.57fps, 17 clocks
+  uint8_t fr54Hz[2] = {0x90, 0x11}; // 54.69ps, 17 clocks
   uint8_t fr60Hz[2] = {0xA0, 0x11}; // 60.76fps, 17 clocks
   uint8_t fr68Hz[2] = {0xB0, 0x11}; // 68.36fps, 17 clocks (ILI9488 default)
   uint8_t fr78Hz[2] = {0xC0, 0x11}; // 78.13fps, 17 clocks
@@ -122,6 +125,9 @@ FLASHMEM void ILI948x_t4_mm::setFrameRate(uint8_t frRate)
   switch (frRate) {
     case 28: memcpy(frData, fr28Hz, sizeof fr28Hz); break;
     case 30: memcpy(frData, fr30Hz, sizeof fr30Hz); break;
+    case 39: memcpy(frData, fr39Hz, sizeof fr39Hz); break;
+    case 45: memcpy(frData, fr45Hz, sizeof fr45Hz); break;
+    case 54: memcpy(frData, fr54Hz, sizeof fr54Hz); break;
     case 60: memcpy(frData, fr60Hz, sizeof fr60Hz); break;
     case 68: memcpy(frData, fr68Hz, sizeof fr68Hz); break;
     case 78: memcpy(frData, fr78Hz, sizeof fr78Hz); break;
