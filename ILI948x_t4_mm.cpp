@@ -14,7 +14,7 @@ FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst)
   
 }
 
-FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div) 
+FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div = 20) 
 {
   //Serial.printf("Bus speed: %d Mhz \n", buad_div);
   switch (buad_div) {
@@ -234,7 +234,7 @@ FASTRUN void ILI948x_t4_mm::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2,
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bit(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-  volatile while(WR_DMATransferDone == false)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -247,7 +247,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bit(const uint16_t * pcolors, uint16_t x
 }
 
 FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-  volatile while(WR_DMATransferDone == false)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -270,7 +270,7 @@ FASTRUN void ILI948x_t4_mm::pushPixels16bitDMA(const uint16_t * pcolors, uint16_
 FLASHMEM void ILI948x_t4_mm::displayInit() 
 {
   uint8_t Command;
-uint8_t CommandValue[25];
+  uint8_t CommandValue[25];
 
 
 #if defined (ILI9481_1)
@@ -1285,7 +1285,7 @@ FASTRUN void ILI948x_t4_mm::FlexIO_Config_MultiBeat()
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *value = NULL, uint32_t const length = 0)
 {
-  volatile while(WR_DMATransferDone == false)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -1335,7 +1335,7 @@ FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_8(uint32_t const cmd, const uint8_t *
 
 FASTRUN void ILI948x_t4_mm::SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length)
 {
- volatile while(WR_DMATransferDone == false)
+ while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }
@@ -1402,7 +1402,7 @@ DMAChannel ILI948x_t4_mm::flexDma;
 
 FASTRUN void ILI948x_t4_mm::MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length) 
 {
-  volatile while(WR_DMATransferDone == false)
+  while(WR_DMATransferDone == false)
   {
     //Wait for any DMA transfers to complete
   }

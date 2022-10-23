@@ -1,6 +1,8 @@
 #ifndef _ILI948x_t4_mm_H_
 #define _ILI948x_t4_mm_H_
 
+#define ILI9481_1
+
 #include "Arduino.h"
 #include "FlexIO_t4.h"
 #include "DMAChannel.h"
