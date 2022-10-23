@@ -35,9 +35,9 @@ in the setup function call:
 ```
 ILI948x_t4_mm::begin();
 ```
-The default baud rate is 12Mhz
+The default baud rate is 20Mhz
 
-In the begin(n) function you can pass 2,4,8,12,20,24 and 40 to lower or raise the baud rate.
+In the begin(n) function you can pass 2,4,8,12,20,24, 30 and 40 to lower or raise the baud rate.
 
 
 Call the following function for a polling method write:

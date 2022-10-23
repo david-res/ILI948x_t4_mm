@@ -99,7 +99,7 @@
 class ILI948x_t4_mm {
   public:
     ILI948x_t4_mm(int8_t dc, int8_t cs = -1, int8_t rst = -1);
-    void begin(uint8_t buad_div);
+    void begin(uint8_t buad_div = 20);
     uint8_t getBusSpd();
 
 

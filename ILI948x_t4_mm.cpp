@@ -14,7 +14,7 @@ FLASHMEM ILI948x_t4_mm::ILI948x_t4_mm(int8_t dc, int8_t cs, int8_t rst)
   
 }
 
-FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div = 20) 
+FLASHMEM void ILI948x_t4_mm::begin(uint8_t buad_div) 
 {
   //Serial.printf("Bus speed: %d Mhz \n", buad_div);
   switch (buad_div) {
