@@ -157,7 +157,7 @@ class ILI948x_t4_mm {
 
     uint16_t _lastx1, _lastx2, _lasty1, _lasty2;
 
-    bool WR_DMATransferDone = true;
+    volatile bool WR_DMATransferDone = true;
     uint32_t MulBeatCountRemain;
     uint16_t *MulBeatDataRemain;
     uint32_t TotalSize; 
