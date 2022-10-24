@@ -496,7 +496,7 @@ FLASHMEM void ILI948x_t4_mm::displayInit()
 
     //////��װ����   NG
     Command = 0x36;   
-    CommandValue[0U] = 0x8C); //  8C:��������   CA������һ����
+    CommandValue[0U] = 0x8C; //  8C:��������   CA������һ����
     SglBeatWR_nPrm_8(Command, CommandValue, 1);
 
     Command = 0x3a;
