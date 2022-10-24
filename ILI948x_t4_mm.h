@@ -1,7 +1,13 @@
 #ifndef _ILI948x_t4_mm_H_
 #define _ILI948x_t4_mm_H_
 
-#define ILI9481_1
+// uncomment below the line corresponding to your screen:
+
+//#define ILI9481_1
+//#define ILI9481_2
+//#define ILI9486
+#define ILI9488
+//#define R61529
 
 #include "Arduino.h"
 #include "FlexIO_t4.h"
@@ -90,10 +96,13 @@
 #define MADCTL_SS  0x02
 
 //MADCTL 0,1,2,3 for setting rotation and 4 for screenshot
-
-//#define MADCTL_ARRAY { MADCTL_MX | MADCTL_BGR, MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_BGR, MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_MV | MADCTL_BGR } // ILI9488/9486
-//#define MADCTL_ARRAY { MADCTL_BGR | MADCTL_SS, MADCTL_MV | MADCTL_BGR, MADCTL_BGR | MADCTL_GS, MADCTL_MV | MADCTL_BGR | MADCTL_SS | MADCTL_GS } // ILI9481
+#if defined (ILI9488) || defined (ILI9486)
+#define MADCTL_ARRAY { MADCTL_MX | MADCTL_BGR, MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_BGR, MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR, MADCTL_MY | MADCTL_MV | MADCTL_BGR } // ILI9488/9486
+#elif defined (ILI9481_1) || defined (ILI9481_2)
+#define MADCTL_ARRAY { MADCTL_BGR | MADCTL_SS, MADCTL_MV | MADCTL_BGR, MADCTL_BGR | MADCTL_GS, MADCTL_MV | MADCTL_BGR | MADCTL_SS | MADCTL_GS } // ILI9481
+#elif defined (R61529)
 #define MADCTL_ARRAY { MADCTL_RGB, MADCTL_MV | MADCTL_MX | MADCTL_RGB, MADCTL_RGB | MADCTL_GS | MADCTL_MX, MADCTL_MV | MADCTL_RGB | MADCTL_GS } // R61529
+#endif
 
 #ifdef __cplusplus
 class ILI948x_t4_mm {
