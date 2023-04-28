@@ -131,6 +131,9 @@ class ILI948x_t4_mm {
 
     void pushPixels16bit(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     void pushPixels16bitDMA(const uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
+
+    uint8_t readCommand(uint8_t const cmd);
     
     //void pushPixels16bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
     //void pushPixels24bitTearing(uint16_t * pcolors, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2 );
@@ -181,6 +184,7 @@ class ILI948x_t4_mm {
     
     void FlexIO_Init();
     void FlexIO_Config_SnglBeat();
+    void FlexIO_Clear_Config_SnglBeat();
     void FlexIO_Config_MultiBeat();
     void FlexIO_Config_SnglBeat_Read();
 
@@ -188,8 +192,6 @@ class ILI948x_t4_mm {
     void SglBeatWR_nPrm_16(uint32_t const cmd, const uint16_t *value, uint32_t const length);
     void MulBeatWR_nPrm_DMA(uint32_t const cmd,  const void *value, uint32_t const length);
 
-    void SglBeatRD_nPrm_8(uint32_t const cmd, uint8_t const *value , uint32_t const length);
-    
     void microSecondDelay();
 
     static void dmaISR();
